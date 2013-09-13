@@ -1,8 +1,9 @@
 #!/bin/bash
-LOCATION='/home/pi/sysdata'
-API_KEY=''
-FEED_ID=''
+LOCATION="/home/pi/bin"
+API_KEY=""
+FEED_ID=""
 
+COSM_JSON="${LOCATION}/data/cosm.json"
 COSM_URL=https://api.xively.com/v2/feeds/${FEED_ID}?timezone=+8
 cpu_load=`cat /proc/loadavg | awk '{print $2}'`
 for i in 1 2 3 4 5; do
@@ -15,13 +16,13 @@ for i in 1 2 3 4 5; do
         fi
 done
 
-TH_STAR=`/home/pi/sysdata/DHT22`
+TH_STAR=`${LOCATION}/DHT22`
 i_temp=`echo $TH_STAR | awk '{print $1}'`
 i_hum=`echo $TH_STAR | awk '{print $2}'`
 
 STR=`awk 'BEGIN{printf "{\"datastreams\":[ {\"id\":\"load\",\"current_value\":\"%.2f\"}, {\"id\":\"temp\",\"current_value\":\"%.2f\"},{\"id\":\"i_temp\",\"current_value\":\"%.2f\"},{\"id\":\"i_hum\",\"current_value\":\"%.2f\"}] } ",'$cpu_load','$cpu_t','$i_temp','$i_hum'}'`
 
 echo ${STR}
-echo ${STR} > ${LOCATION}/cosm.json
+echo ${STR} > ${COSM_JSON}
 
-curl -s -v --request PUT --header "X-ApiKey: ${API_KEY}" --data-binary @${LOCATION}/cosm.json ${COSM_URL}
+curl -s -v --request PUT --header "X-ApiKey: ${API_KEY}" --data-binary @${COSM_JSON} ${COSM_URL}
